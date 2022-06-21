@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<settings>
+  <tools>
+    <default-versions>
+      <tool-version tool-type="maven" id="maven3_6" />
+      <tool-version tool-type="intellij" id="intellij.ideaIU-2020.2.3" />
+      <tool-version tool-type="JetBrains.dotCover.CommandLineTools" id="JetBrains.dotCover.DotNetCliTool.2021.1.2" />
+      <tool-version tool-type="NuGet.CommandLine" id="NuGet.CommandLine.4.7.0" />
+    </default-versions>
+  </tools>
+</settings>
+

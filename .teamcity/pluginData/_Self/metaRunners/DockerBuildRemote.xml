@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<meta-runner name="Docker Build (Remote)">
+  <description>Runner for Docker files</description>
+  <settings>
+    <parameters>
+      <param name="DOCKER_ARCHIVE_NAME" value="" spec="text description='Final name of archive (without extension) with docker image' label='Docker image archive name' validationMode='any' display='prompt'" />
+      <param name="DOCKER_HOST" value="prtagent@172.25.1.251" spec="text display='hidden' validationMode='any'" />
+      <param name="DOCKER_SRC_DIR" value="" spec="text description='The specified path should be relative to the checkout directory' label='Dockerfile and root context directory' validationMode='any' display='prompt'" />
+      <param name="DOCKER_TAG_NAME" value="" spec="text label='Docker image tag name' validationMode='any' display='prompt'" />
+      <param name="DOCKER_TAG_VERSION" value="" spec="text display='prompt' label='Docker image tag version' validationMode='any'" />
+      <param name="DOCKER_ARGS" value="" spec="text display='normal' label='Additional ARGs' validationMode='any'" />
+    </parameters>
+    <build-runners>
+      <runner name="Build Docker image" type="simpleRunner">
+        <parameters>
+          <param name="script.content"><![CDATA[#!/usr/bin/env bash
+set -x
+
+#
+# Create temporary dir (and store path to it)
+#
+workDir=$(ssh -o StrictHostKeyChecking=no %DOCKER_HOST% "mktemp -d")
+
+#
+# Copy sources for build
+#
+scp -r -o StrictHostKeyChecking=no %DOCKER_SRC_DIR%/* %DOCKER_HOST%:${workDir} || exit 1
+
+#
+# Build docker image
+#
+ssh -o StrictHostKeyChecking=no %DOCKER_HOST% "cd ${workDir}; docker build . %DOCKER_ARGS% -t %DOCKER_TAG_NAME%:%DOCKER_TAG_VERSION%"  || exit 1
+
+#
+# Save built docker image
+#
+ssh -o StrictHostKeyChecking=no %DOCKER_HOST% "docker save %DOCKER_TAG_NAME%:%DOCKER_TAG_VERSION% > ${workDir}/%DOCKER_ARCHIVE_NAME%.tar" || exit 1
+ssh -o StrictHostKeyChecking=no %DOCKER_HOST% "gzip ${workDir}/%DOCKER_ARCHIVE_NAME%.tar" || exit 1
+
+#
+# Download image archive
+#
+scp -o StrictHostKeyChecking=no %DOCKER_HOST%:${workDir}/%DOCKER_ARCHIVE_NAME%.tar.gz ./  || exit 1]]></param>
+          <param name="teamcity.step.mode" value="default" />
+          <param name="use.custom.script" value="true" />
+        </parameters>
+      </runner>
+      <runner name="Clean up" type="simpleRunner">
+        <parameters>
+          <param name="script.content"><![CDATA[#!/usr/bin/env bash
+set -x
+
+#
+# Remove built docker images
+#
+ssh -o StrictHostKeyChecking=no %DOCKER_HOST% "docker image rm \$(docker images | fgrep '%DOCKER_TAG_NAME%' | fgrep '%DOCKER_TAG_VERSION%' | awk '{ print \$3 }')"
+
+#
+# Remove temporary directory
+#
+ssh -o StrictHostKeyChecking=no %DOCKER_HOST% "rm -rfv ${workDir}"]]></param>
+          <param name="teamcity.step.mode" value="execute_always" />
+          <param name="use.custom.script" value="true" />
+        </parameters>
+      </runner>
+    </build-runners>
+    <requirements>
+      <equals id="RQ_51" name="teamcity.agent.jvm.os.name" value="Linux" />
+    </requirements>
+  </settings>
+</meta-runner>
+
