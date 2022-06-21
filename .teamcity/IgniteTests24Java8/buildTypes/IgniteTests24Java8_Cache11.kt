@@ -7,8 +7,8 @@ object IgniteTests24Java8_Cache11 : BuildType({
     name = "Cache 11"
 
     params {
-        text("XMX", "4g", display = ParameterDisplay.HIDDEN, allowEmpty = true)
         text("MAVEN_MODULES", ":ignite-core", display = ParameterDisplay.HIDDEN, allowEmpty = true)
+        text("XMX", "4g", display = ParameterDisplay.HIDDEN, allowEmpty = true)
         text("JVM_ARGS", """
             -XX:+UseG1GC
             -XX:+PerfDisableSharedMem

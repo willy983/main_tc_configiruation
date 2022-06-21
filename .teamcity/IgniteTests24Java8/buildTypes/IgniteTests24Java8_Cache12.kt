@@ -7,8 +7,8 @@ object IgniteTests24Java8_Cache12 : BuildType({
     name = "Cache 12"
 
     params {
-        text("TEST_SUITE", "IgniteCacheTestSuite12", display = ParameterDisplay.HIDDEN, allowEmpty = true)
         text("MAVEN_MODULES", ":ignite-core", display = ParameterDisplay.HIDDEN, allowEmpty = true)
+        text("TEST_SUITE", "IgniteCacheTestSuite12", display = ParameterDisplay.HIDDEN, allowEmpty = true)
     }
 
     failureConditions {

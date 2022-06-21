@@ -8,11 +8,11 @@ object ignite3_Test_IntegrationTests_ModuleRunner : BuildType({
     name = "[Module] Runner"
 
     params {
-        text("MODULE", ":ignite-runner", display = ParameterDisplay.HIDDEN, allowEmpty = true)
         param("JVM_ARGS", """
             -Xmx2g
             -XX:MaxDirectMemorySize=256m
         """.trimIndent())
+        text("MODULE", ":ignite-runner", display = ParameterDisplay.HIDDEN, allowEmpty = true)
     }
 
     triggers {
